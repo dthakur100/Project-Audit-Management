@@ -51,6 +51,9 @@ Route::middleware('auth')->group(function(){
     //restore deleted category and checkpoints
     Route::patch('/checkpoints/{checkpoint}/restore',[AuditCheckpointController::class, 'restore'])->name('checkpoints.restore');
     Route::patch('/categories/{category}/restore',[AuditCategoryController::class, 'restore'])->name('categories.restore');
+    
+    //Audit Export route
+    Route::get('/projects/{project}/export', [AuditReportController::class, 'export'])->name('projects.export');
 
 
     //logout route

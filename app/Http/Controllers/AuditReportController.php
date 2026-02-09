@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Audit;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AuditReportExport;
+
     class AuditReportController extends Controller
 {
 
@@ -238,5 +241,17 @@ public function html(Audit $audit)
 //         'categories' => $results,
 //     ]);
 // }
+
+
+
+
+public function export($projectId)
+{
+    return Excel::download(
+        new AuditReportExport($projectId),
+        'project-audit-report.xlsx'
+    );
+}
+
 }
 

@@ -138,6 +138,13 @@
                class="btn btn-sm btn-success action-btn">
                 JSON
             </a>
+
+            <a href="{{ route('projects.export', $project->id) }}" 
+   class="btn  btn-sm bg-dark text-white">
+   Excel
+</a>
+
+
         @else
             <span class="action-badge">No Audit</span>
         @endif
