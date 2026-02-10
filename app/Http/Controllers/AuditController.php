@@ -16,7 +16,7 @@ class AuditController extends Controller
     // Show project & category selection UI
     public function start()
     {
-        $projects = Project::all();
+        $projects = Project::WhereIn('status',['active','in_progress'])->get();
         $categories = AuditCategory::all();
 
         return view('audits.start', compact('projects', 'categories'));
@@ -81,40 +81,40 @@ class AuditController extends Controller
     // }
 
     public function saveResults(Request $request, $auditId)
-{
-    try{
-        $request->validate([
-            'results' => 'required|array',
-            'results.*.status' => 'required|string',
-            'results.*.severity' => 'required|string',
-            'results.*.remarks' => 'nullable|string',
-        ]);
-
-        DB::beginTransaction();
-        foreach ($request->results as $checkpointId => $data) {
-            AuditResult::create([
-                'audit_id' => $auditId,
-                'audit_checkpoint_id' => $checkpointId,
-                'status' => $data['status'],
-                'severity' => $data['severity'] ?? null,
-                'remarks' => $data['remarks'] ?? null,
+    {
+        try{
+            $request->validate([
+                'results' => 'required|array',
+                'results.*.status' => 'required|string',
+                'results.*.severity' => 'required|string',
+                'results.*.remarks' => 'nullable|string',
             ]);
-        }
-        DB::commit();
-        return redirect()->route('projects.index')
-            ->with('success', 'Audit Completed Successfully');
-    }
-    catch(\Throwable $e){
-        DB::rollBack();
-        Log::error('Audit Result Creation Failed',[
-            'error_message'=>$e->getMessage(),
-            'file'=>$e->getFile(),
-            'line'=>$e->getLine(),
-            'audit_id'=>$auditId,
-            'user_id'=>auth()->id(),
-        ]);
-      return back()->with('error', 'Something went wrong. Please try again.');
 
+            DB::beginTransaction();
+            foreach ($request->results as $checkpointId => $data) {
+                AuditResult::create([
+                    'audit_id' => $auditId,
+                    'audit_checkpoint_id' => $checkpointId,
+                    'status' => $data['status'],
+                    'severity' => $data['severity'] ?? null,
+                    'remarks' => $data['remarks'] ?? null,
+                ]);
+            }
+            DB::commit();
+            return redirect()->route('projects.index')
+                ->with('success', 'Audit Completed Successfully');
+        }
+        catch(\Throwable $e){
+            DB::rollBack();
+            Log::error('Audit Result Creation Failed',[
+                'error_message'=>$e->getMessage(),
+                'file'=>$e->getFile(),
+                'line'=>$e->getLine(),
+                'audit_id'=>$auditId,
+                'user_id'=>auth()->id(),
+            ]);
+        return back()->with('error', 'Something went wrong. Please try again.');
+
+        }
     }
-}
 }

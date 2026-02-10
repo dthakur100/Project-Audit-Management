@@ -8,9 +8,14 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 
-class AuditReportExport implements FromCollection, WithHeadings,ShouldAutoSize
+
+class AuditReportExport implements FromCollection, WithHeadings,ShouldAutoSize, WithEvents
 {
     protected $projectId;
 
@@ -127,9 +132,62 @@ public function collection()
     {
         return [
             ['Project Name: ' . $this->projectName],
-            [], // empty row
-            [],
             ['Category', 'Checkpoint', 'Status', 'Remarks', 'Audit Date']
+        ];
+    }
+
+    public function registerEvents():array{
+        return [
+            AfterSheet::class => function(AfterSheet $event){
+                $cellRange= 'A1:E1'; //project Heading
+                $event->sheet->getDelegate()->getStyle($cellRange)->getFont()->setSize(18)->setBold(true);
+                $event->sheet->getDelegate()->getStyle('A2:E2')->getFont()->setSize(15)->setBold(true);
+                $event->sheet->getDelegate()->mergeCells('A1:E1');
+                $event->sheet->getDelegate()->getStyle('A1:E100')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                //background color 
+                $event->sheet->getDelegate()->getStyle('A1:E1')->getFill()->setFillType(FILL::FILL_SOLID)->getStartColor()->setARGB('ADD8E6');
+                //Border 
+                $event->sheet->getDelegate()->getStyle('A1:E1')->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+
+                $lastRow = $event->sheet->getDelegate()->getHighestRow();
+                $lastColumn = $event->sheet->getDelegate()->getHighestColumn();
+                //Apply border from A2 to last COlumn
+                $event->sheet->getDelegate()->getStyle('A2:'.$lastColumn .$lastRow)
+                ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+                $sheet = $event->sheet->getDelegate();
+                
+// CATEGORY → Green
+$sheet->getStyle('A2')->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('90EE90'); // Light Green
+
+
+// CHECKPOINT → Yellow
+$sheet->getStyle('B2')->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('FFFF00'); // Yellow
+
+
+// STATUS → Pink
+$sheet->getStyle('C2')->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('FFC0CB'); // Pink
+
+
+// REMARKS → Dark Blue
+$sheet->getStyle('D2')->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('F08080'); // Light Red
+
+
+// AUDIT DATE → Grey
+$sheet->getStyle('E2')->getFill()
+    ->setFillType(Fill::FILL_SOLID)
+    ->getStartColor()->setARGB('D3D3D3'); // Light Grey
+
+            },
         ];
     }
 

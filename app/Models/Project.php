@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Project extends Model
 {
+    const STATUS_ACTIVE = 'active';
+    const STATUS_IN_PROGRESS = 'in_progress';
+    const STATUS_COMPLETED = 'progress';
+
     protected $fillable = [
         'name',
         'client_name',

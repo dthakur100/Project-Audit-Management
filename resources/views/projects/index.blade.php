@@ -47,6 +47,23 @@
     vertical-align: middle;
 }
 
+/* status buutton css code */
+.custom-select-dark {
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+.custom-select-dark:focus {
+    background-color: #000;
+    color: #fff;
+    box-shadow: 0 0 5px rgba(255,255,255,0.3);
+    border-color: #fff;
+}
+
+
 </style>
 <div class="container py-4">
 
@@ -101,11 +118,26 @@
                             </span>
                         </td>
 
-                        <td>
-                            <span class="badge bg-success-subtle text-success">
-                                {{ ucfirst($project->status) }}
-                            </span>
-                        </td>
+                   
+    <!-- <td>
+        <select class="form-control status-dropdown"
+            data-id="{{ $project->id }}">
+            <option class="text-center" value="active" {{ $project->status == 'active' ? 'selected' : '' }}>Active</option>
+            <option class="text-center" value="in_progress" {{ $project->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+            <option class="text-center" value="completed" {{ $project->status == 'completed' ? 'selected' : '' }}>Completed</option>
+        </select>
+    </td> -->
+
+    <td>
+    <select class="form-control status-dropdown custom-select-dark"
+        data-id="{{ $project->id }}">
+        <option class="text-center" value="active" {{ $project->status == 'active' ? 'selected' : '' }}>Active</option>
+        <option class="text-center" value="in_progress" {{ $project->status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+        <option class="text-center" value="completed" {{ $project->status == 'completed' ? 'selected' : '' }}>Completed</option>
+    </select>
+</td>
+
+
 
                        <td class="text-center">
     <div class="project-actions">
@@ -174,5 +206,116 @@
             responsive: true
         });
     });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.status-dropdown').forEach(function (dropdown) {
+
+        dropdown.addEventListener('focus', function () {
+            // store old value before change
+            this.setAttribute('data-old', this.value);
+        });
+
+        dropdown.addEventListener('change', function () {
+
+            let projectId = this.dataset.id;
+            let newStatus = this.value;
+            let oldStatus = this.getAttribute('data-old');
+            let selectElement = this;
+
+            Swal.fire({
+                title: "Do you want to update the status?",
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: "Save",
+                denyButtonText: `Don't save`
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    fetch(`/projects/${projectId}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+
+                        if (data.success) {
+                            Swal.fire("Saved!", "Status updated successfully.", "success");
+                        } else {
+                            selectElement.value = oldStatus;
+                            Swal.fire("Error!", "Something went wrong.", "error");
+                        }
+
+                    })
+                    .catch(error => {
+                        selectElement.value = oldStatus;
+                        Swal.fire("Error!", "Server error occurred.", "error");
+                    });
+
+                } else if (result.isDenied) {
+
+                    // revert to old value
+                    selectElement.value = oldStatus;
+                    Swal.fire("Changes are not saved", "", "info");
+
+                } else {
+                    // Cancel button
+                    selectElement.value = oldStatus;
+                }
+
+            });
+
+        });
+
+    });
+
+});
 </script>
+    <!-- <script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.status-dropdown').forEach(function (dropdown) {
+
+        dropdown.addEventListener('change', function () {
+
+            let projectId = this.dataset.id;
+            let status = this.value;
+
+            fetch(`/projects/${projectId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Status Updated Successfully ✅');
+                }
+            })
+            .catch(error => {
+                alert('Something went wrong ❌');
+                console.error(error);
+            });
+
+        });
+
+    });
+
+});
+</script> -->
+
+
 @endpush

@@ -58,5 +58,16 @@ class ProjectController extends Controller
         ->with('success','Project Deleted Successfully');
     }
 
+    //project status update method 
+    public function updateStatus(Request $request, Project $project){
+        $request->validate([
+            'status'=>'required|in:active,in_progress,completed'
+        ]);
+        $project->update([
+            'status' => $request->status
+        ]);
+        return response()->json(['success'=>true]);
+    }
+
 
 }
