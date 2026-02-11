@@ -16,6 +16,28 @@ class Project extends Model
             get: fn($value)=> ucWords($value),
         );
     }
+
+     protected function clientName():Attribute
+    {
+        return Attribute::make(
+            get: fn($value)=> ucWords($value),
+        );
+    }
+
+    protected function technologyStack(): Attribute
+{
+    return Attribute::make(
+        get: function ($value) {
+            $technologies = explode(',', $value); // split by comma
+            
+            $formatted = array_map(function ($tech) {
+                return ucfirst(trim($tech)); // remove space + capitalize
+            }, $technologies);
+
+            return implode(', ', $formatted); // join with proper spacing
+        },
+    );
+}
     protected $fillable = [
         'name',
         'client_name',
