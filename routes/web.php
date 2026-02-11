@@ -55,7 +55,8 @@ Route::middleware('auth')->group(function(){
     //Audit Export route
     Route::get('/projects/{project}/export', [AuditReportController::class, 'export'])->name('projects.export');
 
-
+    //Audit completed Projects view 
+    Route::get('/completed-projects',[AuditController::class,'completedProjects'])->name('completed.projects');
     //logout route
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

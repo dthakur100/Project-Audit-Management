@@ -272,6 +272,14 @@ body {
             </a>
         </li>
 
+        <li>
+            <a class="dropdown-item" href="{{ route('completed.projects') }}">
+                📁  Completed Project
+            </a>
+        </li>
+
+      
+
         <li><hr class="dropdown-divider"></li>
 
         <!-- Categories -->

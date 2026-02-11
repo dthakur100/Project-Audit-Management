@@ -117,4 +117,12 @@ class AuditController extends Controller
 
         }
     }
+
+    //Audit Completed result view page method
+     public function completedProjects(){
+        // $projects = Project::latest()->paginate(15);
+        // $projects = Project::with('audits')->latest()->paginate(15);
+        $projects = Project::with('audits')->where('status',['completed'])->get();
+        return view('audits.complete',compact('projects'));
+    }
 }
