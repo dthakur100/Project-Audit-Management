@@ -211,7 +211,7 @@ body {
 <!-- =================== HEADER / NAVBAR =================== -->
 <nav class="navbar navbar-expand-lg navbar-dark main-navbar sticky-top">
     <div class="container">
-
+    <h1>Testing Demo rachr</h1>
         <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2"
            href="{{ route('projects.index') }}">
